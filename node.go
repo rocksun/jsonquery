@@ -31,6 +31,8 @@ type Node struct {
 	Type NodeType
 	Data string
 
+	Value interface{}
+
 	level int
 }
 
@@ -106,7 +108,7 @@ func parseValue(x interface{}, top *Node, level int) {
 	switch v := x.(type) {
 	case []interface{}:
 		for _, vv := range v {
-			n := &Node{Type: ElementNode, level: level}
+			n := &Node{Type: ElementNode, level: level, Value: vv}
 			addNode(n)
 			parseValue(vv, n, level+1)
 		}
@@ -119,7 +121,7 @@ func parseValue(x interface{}, top *Node, level int) {
 		}
 		sort.Strings(keys)
 		for _, key := range keys {
-			n := &Node{Data: key, Type: ElementNode, level: level}
+			n := &Node{Data: key, Type: ElementNode, level: level, Value: v[key]}
 			addNode(n)
 			parseValue(v[key], n, level+1)
 		}
@@ -154,4 +156,10 @@ func Parse(r io.Reader) (*Node, error) {
 		return nil, err
 	}
 	return parse(b)
+}
+
+func ParseMap(m interface{}) (*Node, error) {
+	doc := &Node{Type: DocumentNode, Value: m}
+	parseValue(m, doc, 1)
+	return doc, nil
 }
