@@ -112,12 +112,12 @@ func parseValue(x interface{}, top *Node, level int) {
 			addNode(n)
 			parseValue(vv, n, level+1)
 		}
-	case map[string]interface{}:
+	case map[interface{}]interface{}:
 		// The Go’s map iteration order is random.
 		// (https://blog.golang.org/go-maps-in-action#Iteration-order)
 		var keys []string
 		for key := range v {
-			keys = append(keys, key)
+			keys = append(keys, key.(string))
 		}
 		sort.Strings(keys)
 		for _, key := range keys {
