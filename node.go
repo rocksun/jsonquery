@@ -106,12 +106,17 @@ func parseValue(x interface{}, top *Node, level int) {
 		}
 	}
 	switch v := x.(type) {
-	case []interface{}:
-		for _, vv := range v {
-			n := &Node{Type: ElementNode, level: level, Value: vv}
-			addNode(n)
-			parseValue(vv, n, level+1)
-		}
+	case string:
+		n := &Node{Data: v, Type: TextNode, level: level}
+		addNode(n)
+	case float64:
+		s := strconv.FormatFloat(v, 'f', -1, 64)
+		n := &Node{Data: s, Type: TextNode, level: level}
+		addNode(n)
+	case bool:
+		s := strconv.FormatBool(v)
+		n := &Node{Data: s, Type: TextNode, level: level}
+		addNode(n)
 	case map[interface{}]interface{}:
 		// The Go’s map iteration order is random.
 		// (https://blog.golang.org/go-maps-in-action#Iteration-order)
@@ -125,17 +130,13 @@ func parseValue(x interface{}, top *Node, level int) {
 			addNode(n)
 			parseValue(v[key], n, level+1)
 		}
-	case string:
-		n := &Node{Data: v, Type: TextNode, level: level}
-		addNode(n)
-	case float64:
-		s := strconv.FormatFloat(v, 'f', -1, 64)
-		n := &Node{Data: s, Type: TextNode, level: level}
-		addNode(n)
-	case bool:
-		s := strconv.FormatBool(v)
-		n := &Node{Data: s, Type: TextNode, level: level}
-		addNode(n)
+	case []interface{}:
+		for _, vv := range v {
+			n := &Node{Type: ElementNode, level: level, Value: vv}
+			addNode(n)
+			parseValue(vv, n, level+1)
+		}
+
 	}
 }
 
